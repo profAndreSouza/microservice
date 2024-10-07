@@ -4,11 +4,28 @@ using Microsoft.Extensions.Hosting;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.EntityFrameworkCore;
 using UserAuthAPI.Data;
+using UserAuthAPI.Services;
+using UserAuthAPI.Extensions;
 
 public class Startup
 {
+    private readonly IConfiguration _configuration;
+
+    public Startup(IConfiguration configuration)
+    {
+        _configuration = configuration;
+    }
     public void ConfigureServices(IServiceCollection services)
     {
+        services.AddDbContext<ApplicationDbContext>(
+            options =>options.UseNpgsql(_configuration.GetConnectionString("DefaultConnection"))
+        );
+
+
+        services.AddScoped<IUserRepository, UserRepository>();
+        services.AddScoped<IUserService, UserService>();
+
+
         // Add services to the container.
         services.AddControllers();
         services.AddEndpointsApiExplorer();
@@ -53,6 +70,7 @@ public class Startup
                 c.SwaggerEndpoint("/swagger/v1/swagger.json", "User Authentication API V1"); // Set up the Swagger UI
                 c.RoutePrefix = string.Empty; // Set Swagger UI at the app's root
             });
+            app.ApplyMigrations();
         }
 
         // app.UseHttpsRedirection();
