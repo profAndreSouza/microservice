@@ -7,7 +7,7 @@ WORKDIR /src
 COPY AuthMicroservice.csproj .
 RUN dotnet restore
 COPY . .
-RUN dotnet publish -c release -o /app
+RUN dotnet publish -c release -o /app AuthMicroservice.csproj
 
 FROM base AS final
 WORKDIR /app
