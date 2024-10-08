@@ -1,7 +1,7 @@
 using Microsoft.EntityFrameworkCore;
-using UserAuthAPI.Data;
+using UserAuth.Infrastructure.Data;
 
-namespace UserAuthAPI.Extensions;
+namespace UserAuth.API.Extensions;
 
 public static class MigrationExtensions
 {

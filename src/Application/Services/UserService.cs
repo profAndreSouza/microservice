@@ -1,9 +1,10 @@
-using UserAuthAPI.Data;
-using UserAuthAPI.DTOs;
-using UserAuthAPI.Models;
-using UserAuthAPI.Helpers;
+using UserAuth.API.DTOs;
+using UserAuth.Application.Helpers;
+using UserAuth.Application.Interfaces;
+using UserAuth.Domain.Entities;
+using UserAuth.Domain.Interfaces;
 
-namespace UserAuthAPI.Services
+namespace UserAuth.Application.Services
 {
     public class UserService : IUserService
     {

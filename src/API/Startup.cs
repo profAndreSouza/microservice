@@ -1,11 +1,10 @@
-using Microsoft.AspNetCore.Builder;
-using Microsoft.Extensions.DependencyInjection;
-using Microsoft.Extensions.Hosting;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.EntityFrameworkCore;
-using UserAuthAPI.Data;
-using UserAuthAPI.Services;
-using UserAuthAPI.Extensions;
+using UserAuth.API.Extensions;
+using UserAuth.Application.Interfaces;
+using UserAuth.Application.Services;
+using UserAuth.Domain.Interfaces;
+using UserAuth.Infrastructure.Data;
 
 public class Startup
 {

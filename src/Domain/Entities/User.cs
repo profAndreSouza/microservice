@@ -1,4 +1,4 @@
-namespace UserAuthAPI.Models
+namespace UserAuth.Domain.Entities
 {
     public class User
     {

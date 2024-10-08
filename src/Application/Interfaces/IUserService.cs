@@ -1,6 +1,6 @@
-using UserAuthAPI.DTOs;
+using UserAuth.API.DTOs;
 
-namespace UserAuthAPI.Services
+namespace UserAuth.Application.Interfaces
 {
     public interface IUserService
     {

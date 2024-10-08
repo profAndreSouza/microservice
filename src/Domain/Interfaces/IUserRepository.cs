@@ -1,6 +1,6 @@
-using UserAuthAPI.Models;
+using UserAuth.Domain.Entities;
 
-namespace UserAuthAPI.Data
+namespace UserAuth.Domain.Interfaces
 {
     public interface IUserRepository
     {

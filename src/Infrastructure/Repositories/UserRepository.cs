@@ -1,7 +1,8 @@
 using Microsoft.EntityFrameworkCore;
-using UserAuthAPI.Models;
+using UserAuth.Domain.Entities;
+using UserAuth.Domain.Interfaces;
 
-namespace UserAuthAPI.Data
+namespace UserAuth.Infrastructure.Data
 {
     public class UserRepository : IUserRepository
     {
@@ -43,5 +44,6 @@ namespace UserAuthAPI.Data
                 await _context.SaveChangesAsync();
             }
         }
+
     }
 }
