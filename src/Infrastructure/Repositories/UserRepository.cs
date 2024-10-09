@@ -45,5 +45,9 @@ namespace UserAuth.Infrastructure.Data
             }
         }
 
+        public async Task<User> FindUserByUsername(string username)
+        {
+            return await _context.Users.SingleOrDefaultAsync(u => u.Username == username);
+        }
     }
 }

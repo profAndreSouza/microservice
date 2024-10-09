@@ -1,6 +1,7 @@
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.EntityFrameworkCore;
 using UserAuth.API.Extensions;
+using UserAuth.Application.Helpers;
 using UserAuth.Application.Interfaces;
 using UserAuth.Application.Services;
 using UserAuth.Domain.Interfaces;
@@ -23,6 +24,7 @@ public class Startup
 
         services.AddScoped<IUserRepository, UserRepository>();
         services.AddScoped<IUserService, UserService>();
+        services.AddScoped<IAuthService, AuthService>();
 
 
         // Add services to the container.
@@ -31,29 +33,14 @@ public class Startup
         services.AddSwaggerGen(c =>
         {
             c.SwaggerDoc("v1", new Microsoft.OpenApi.Models.OpenApiInfo { Title = "User Authentication API", Version = "v1" });
-            // c.SwaggerDoc("v1", new OpenApiInfo { Title = "User Authentication API", Version = "v1" });
 
-            // Se você tiver um arquivo de comentários XML
-            // var xmlFile = $"{Assembly.GetExecutingAssembly().GetName().Name}.xml";
-            // var xmlPath = Path.Combine(AppContext.BaseDirectory, xmlFile);
-            // c.IncludeXmlComments(xmlPath);
-        });
-
-        // Add Authentication
-        services
-            .AddAuthentication(options =>
-            {
-                options.DefaultAuthenticateScheme = JwtBearerDefaults.AuthenticationScheme;
-                options.DefaultChallengeScheme = JwtBearerDefaults.AuthenticationScheme;
-            })
-            .AddJwtBearer(options =>
-            {
-                options.RequireHttpsMetadata = false;
-                options.SaveToken = true; // Configure JWT token validation options 
-            });
+        });  
 
         // Add Authorization
         services.AddAuthorization();
+
+        services.AddSingleton<IConfiguration>(_configuration);
+        services.AddTransient<TokenHelper>();
     }
 
     public void Configure(IApplicationBuilder app, IWebHostEnvironment env)
