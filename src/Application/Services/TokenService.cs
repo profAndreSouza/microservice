@@ -31,6 +31,8 @@ namespace UserAuth.Application.Services
                 SecurityAlgorithms.HmacSha256
             );
 
+            var expires = Convert.ToDouble(_configuration["Jwt:Expires"]);
+
             var tokenOptions = new JwtSecurityToken(
                 issuer: issuer,
                 audience: audience,
@@ -39,7 +41,7 @@ namespace UserAuth.Application.Services
                     new Claim(type: ClaimTypes.Name, user.Name),
                     new Claim(type: ClaimTypes.Role, "user:admin")
                 },
-                expires: DateTime.Now.AddHours(1),
+                expires: DateTime.Now.AddMinutes(expires),
                 signingCredentials: credentials
             );
 
