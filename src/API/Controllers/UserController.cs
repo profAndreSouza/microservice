@@ -1,3 +1,4 @@
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using UserAuth.API.DTOs;
 using UserAuth.Application.Interfaces;
@@ -6,6 +7,8 @@ namespace UserAuth.API.Controllers
 {
     [ApiController]
     [Route("api/[controller]")]
+
+    [ Authorize(Roles = "user:admin")]
     public class UserController : ControllerBase
     {
         private readonly IUserService _userService;

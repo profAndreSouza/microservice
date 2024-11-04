@@ -2,6 +2,7 @@ using Microsoft.AspNetCore.Mvc;
 using UserAuth.API.DTOs;
 using UserAuth.Application.Helpers;
 using UserAuth.Application.Interfaces;
+using UserAuth.Domain.Entities;
 using UserAuth.Domain.Interfaces;
 
 namespace UserAuth.Application.Services
@@ -15,12 +16,12 @@ namespace UserAuth.Application.Services
             _userRepository = userRepository;
         }
 
-        public async Task<int?> LoginUser(UserLoginDTO userLoginDTO)
+        public async Task<User?> LoginUser(UserLoginDTO userLoginDTO)
         {
             var user = await _userRepository.FindUserByUsername(userLoginDTO.Username);
             if (user != null)
                 if (PasswordHelper.VerifyPassword(userLoginDTO.Password, user.Password))
-                    return user.Id;
+                    return user;
                     
             return null;
         }

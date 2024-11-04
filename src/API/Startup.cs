@@ -1,11 +1,13 @@
-using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.EntityFrameworkCore;
 using UserAuth.API.Extensions;
-using UserAuth.Application.Helpers;
 using UserAuth.Application.Interfaces;
 using UserAuth.Application.Services;
 using UserAuth.Domain.Interfaces;
 using UserAuth.Infrastructure.Data;
+using Microsoft.OpenApi.Models;
+using Microsoft.AspNetCore.Authentication.JwtBearer;
+using Microsoft.IdentityModel.Tokens;
+using System.Text;
 
 public class Startup
 {
@@ -25,6 +27,7 @@ public class Startup
         services.AddScoped<IUserRepository, UserRepository>();
         services.AddScoped<IUserService, UserService>();
         services.AddScoped<IAuthService, AuthService>();
+        services.AddScoped<ITokenService, TokenService>();
 
 
         // Add services to the container.
@@ -32,15 +35,56 @@ public class Startup
         services.AddEndpointsApiExplorer();
         services.AddSwaggerGen(c =>
         {
-            c.SwaggerDoc("v1", new Microsoft.OpenApi.Models.OpenApiInfo { Title = "User Authentication API", Version = "v1" });
-
+            c.SwaggerDoc("v1", new OpenApiInfo { 
+                Title = "User Authentication API", 
+                Version = "v1" });
+            c.AddSecurityDefinition("Bearer", new OpenApiSecurityScheme() {
+                Name = "Authorization",
+                Type = SecuritySchemeType.ApiKey,
+                Scheme = "Bearer",
+                BearerFormat = "JWT",
+                In = ParameterLocation.Header,
+                Description = "JWT Authorization Header is using Bearer Schema " +
+                              "\n\n Input 'Bearer' + token"
+            });
+            c.AddSecurityRequirement(new OpenApiSecurityRequirement() 
+            {
+                {
+                    new OpenApiSecurityScheme 
+                    {
+                        Reference = new OpenApiReference 
+                        {
+                            Type = ReferenceType.SecurityScheme,
+                            Id = "Bearer"
+                        }
+                    },
+                    Array.Empty<String>()
+                }
+            });
         });  
 
-        // Add Authorization
+        services.AddAuthentication(options =>
+        {
+            options.DefaultAuthenticateScheme = JwtBearerDefaults.AuthenticationScheme;
+            options.DefaultChallengeScheme = JwtBearerDefaults.AuthenticationScheme;
+        })
+        .AddJwtBearer(options =>
+        {
+            options.TokenValidationParameters = new TokenValidationParameters
+            {
+                ValidateIssuer = true,
+                ValidateAudience = true,
+                ValidateLifetime = true,
+                ValidateIssuerSigningKey = true,
+                ValidIssuer = _configuration["Jwt:Issuer"],
+                ValidAudience = _configuration["Jwt:Audience"],
+                IssuerSigningKey = new SymmetricSecurityKey(
+                    Encoding.UTF8.GetBytes(_configuration["Jwt:Key"]))
+            };
+        });
         services.AddAuthorization();
 
         services.AddSingleton<IConfiguration>(_configuration);
-        services.AddTransient<TokenHelper>();
     }
 
     public void Configure(IApplicationBuilder app, IWebHostEnvironment env)
