@@ -11,10 +11,10 @@ services:
     volumes:
       - db_data:/var/lib/postgresql/data
 
-  api:
+  userapi:
     build:
       context: .
-      dockerfile: ./src/Infrastructure/Docker/Dockerfile
+      dockerfile: ./UserAPI/src/Infrastructure/Docker/Dockerfile
     ports:
       - "3000:8080"
     depends_on:
