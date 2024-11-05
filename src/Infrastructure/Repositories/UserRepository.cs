@@ -1,10 +1,9 @@
 using Microsoft.EntityFrameworkCore;
 using UserAuth.Domain.Entities;
 using UserAuth.Domain.Interfaces;
-using System.Collections.Generic;
-using System.Threading.Tasks;
+using UserAuth.Infrastructure.Data;
 
-namespace UserAuth.Infrastructure.Data
+namespace UserAuth.Infrastructure.Repositories
 {
     public class UserRepository : IUserRepository
     {
@@ -17,28 +16,25 @@ namespace UserAuth.Infrastructure.Data
 
         public async Task<IEnumerable<User>> GetAllUsers()
         {
-            // Incluindo as roles na busca de usuários
-            return await _context.Users.Include(u => u.Roles).ToListAsync();
+            return await _context.Users.Include(u => u.UserRoles).ThenInclude(ur => ur.Role).ToListAsync();
         }
 
         public async Task<User> GetUserById(int id)
         {
-            // Incluindo as roles na busca de um usuário específico
-            return await _context.Users.Include(u => u.Roles).SingleOrDefaultAsync(u => u.Id == id);
+            return await _context.Users.Include(u => u.UserRoles).ThenInclude(ur => ur.Role).SingleOrDefaultAsync(u => u.Id == id);
         }
-
 
         public async Task<User> GetUserByEmail(string email)
         {
-            return await _context.Users.Include(u => u.Roles)
-                                    .SingleOrDefaultAsync(u => u.Email == email);
-        }
-        public async Task<User> FindUserByUsername(string username)
-        {
-            return await _context.Users.Include(u => u.Roles)
-                                    .SingleOrDefaultAsync(u => u.Username == username);
+            return await _context.Users.Include(u => u.UserRoles).ThenInclude(ur => ur.Role)
+                                       .SingleOrDefaultAsync(u => u.Email == email);
         }
 
+        public async Task<User> FindUserByUsername(string username)
+        {
+            return await _context.Users.Include(u => u.UserRoles).ThenInclude(ur => ur.Role)
+                                       .SingleOrDefaultAsync(u => u.Username == username);
+        }
 
         public async Task AddUser(User user)
         {
@@ -64,31 +60,27 @@ namespace UserAuth.Infrastructure.Data
 
         public async Task<IEnumerable<Role>> GetRolesByUserId(int userId)
         {
-            var user = await _context.Users.Include(u => u.Roles).SingleOrDefaultAsync(u => u.Id == userId);
-            return user?.Roles ?? new List<Role>();
+            return await _context.UserRoles
+                .Where(ur => ur.UserId == userId)
+                .Select(ur => ur.Role)
+                .ToListAsync();
         }
 
         public async Task AddRoleToUser(int userId, Role role)
         {
-            var user = await _context.Users.Include(u => u.Roles).SingleOrDefaultAsync(u => u.Id == userId);
-            if (user != null && !user.Roles.Contains(role))
-            {
-                user.Roles.Add(role);
-                await _context.SaveChangesAsync();
-            }
+            var userRole = new UserRole { UserId = userId, RoleId = role.Id };
+            await _context.UserRoles.AddAsync(userRole);
+            await _context.SaveChangesAsync();
         }
 
         public async Task RemoveRoleFromUser(int userId, int roleId)
         {
-            var user = await _context.Users.Include(u => u.Roles).SingleOrDefaultAsync(u => u.Id == userId);
-            if (user != null)
+            var userRole = await _context.UserRoles
+                .SingleOrDefaultAsync(ur => ur.UserId == userId && ur.RoleId == roleId);
+            if (userRole != null)
             {
-                var roleToRemove = user.Roles.SingleOrDefault(r => r.Id == roleId);
-                if (roleToRemove != null)
-                {
-                    user.Roles.Remove(roleToRemove);
-                    await _context.SaveChangesAsync();
-                }
+                _context.UserRoles.Remove(userRole);
+                await _context.SaveChangesAsync();
             }
         }
     }

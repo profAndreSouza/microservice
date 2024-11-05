@@ -3,19 +3,18 @@ using UserAuth.Application.Helpers;
 using UserAuth.Application.Interfaces;
 using UserAuth.Domain.Entities;
 using UserAuth.Domain.Interfaces;
-using System.Collections.Generic;
-using System.Linq;
-using System.Threading.Tasks;
 
 namespace UserAuth.Application.Services
 {
     public class UserService : IUserService
     {
         private readonly IUserRepository _userRepository;
+        private readonly IRoleRepository _roleRepository;
 
-        public UserService(IUserRepository userRepository)
+        public UserService(IUserRepository userRepository, IRoleRepository roleRepository)
         {
             _userRepository = userRepository;
+            _roleRepository = roleRepository;
         }
 
         public async Task<IEnumerable<UserDTO>> GetAllUsers()
@@ -27,12 +26,12 @@ namespace UserAuth.Application.Services
                 Name = user.Name,
                 Email = user.Email,
                 Username = user.Username,
-                Roles = user.Roles.Select(role => new RoleDTO
+                Roles = user.UserRoles.Select(userRole => new RoleDTO
                 {
-                    Id = role.Id,
-                    Name = role.Name
+                    Id = userRole.Role.Id,
+                    Name = userRole.Role.Name
                 }).ToList()
-            });
+            }).ToList();
         }
 
         public async Task<UserDTO> GetUserById(int id)
@@ -46,10 +45,10 @@ namespace UserAuth.Application.Services
                 Name = user.Name,
                 Email = user.Email,
                 Username = user.Username,
-                Roles = user.Roles.Select(role => new RoleDTO
+                Roles = user.UserRoles.Select(userRole => new RoleDTO
                 {
-                    Id = role.Id,
-                    Name = role.Name
+                    Id = userRole.Role.Id,
+                    Name = userRole.Role.Name
                 }).ToList()
             };
         }
@@ -65,14 +64,13 @@ namespace UserAuth.Application.Services
                 Name = user.Name,
                 Email = user.Email,
                 Username = user.Username,
-                Roles = user.Roles.Select(role => new RoleDTO
+                Roles = user.UserRoles.Select(userRole => new RoleDTO
                 {
-                    Id = role.Id,
-                    Name = role.Name
+                    Id = userRole.Role.Id, 
+                    Name = userRole.Role.Name
                 }).ToList()
             };
         }
-
         public async Task AddUser(UserDTO userDTO)
         {
             var user = new User
@@ -80,15 +78,22 @@ namespace UserAuth.Application.Services
                 Name = userDTO.Name,
                 Email = userDTO.Email,
                 Username = userDTO.Username,
-                Password = PasswordHelper.HashPassword(userDTO.Password),
-                Roles = userDTO.Roles.Select(roleDTO => new Role
-                {
-                    Id = roleDTO.Id,
-                    Name = roleDTO.Name
-                }).ToList()
+                Password = PasswordHelper.HashPassword(userDTO.Password)
             };
 
             await _userRepository.AddUser(user);
+
+            foreach (var roleDTO in userDTO.Roles)
+            {
+                var existingRole = await _roleRepository.GetRoleByName(roleDTO.Name);
+                if (existingRole == null)
+                {
+                    existingRole = new Role { Name = roleDTO.Name };
+                    await _roleRepository.AddRole(existingRole); // Adicione um método para adicionar role
+                }
+
+                await _userRepository.AddRoleToUser(user.Id, existingRole);
+            }
         }
 
         public async Task UpdateUser(int id, UserDTO userDTO)
@@ -99,20 +104,53 @@ namespace UserAuth.Application.Services
                 user.Name = userDTO.Name;
                 user.Email = userDTO.Email;
                 user.Username = userDTO.Username;
-                
-                user.Roles = userDTO.Roles.Select(roleDTO => new Role
+
+                user.UserRoles.Clear();
+
+                foreach (var roleDTO in userDTO.Roles)
                 {
-                    Id = roleDTO.Id,
-                    Name = roleDTO.Name
-                }).ToList();
+                    var existingRole = await _roleRepository.GetRoleByName(roleDTO.Name);
+                    if (existingRole == null)
+                    {
+                        existingRole = new Role { Name = roleDTO.Name };
+                        await _roleRepository.AddRole(existingRole);
+                    }
+
+                    user.UserRoles.Add(new UserRole { UserId = user.Id, Role = existingRole });
+                }
 
                 await _userRepository.UpdateUser(user);
             }
         }
 
+
         public async Task DeleteUser(int id)
         {
             await _userRepository.DeleteUser(id);
+        }
+
+        public async Task<IEnumerable<RoleDTO>> GetRolesByUserId(int userId)
+        {
+            var roles = await _userRepository.GetRolesByUserId(userId);
+            return roles.Select(role => new RoleDTO
+            {
+                Id = role.Id,
+                Name = role.Name
+            }).ToList();
+        }
+
+        public async Task AddRoleToUser(int userId, RoleDTO roleDTO)
+        {
+            var role = new Role
+            {
+                Name = roleDTO.Name
+            };
+            await _userRepository.AddRoleToUser(userId, role);
+        }
+
+        public async Task RemoveRoleFromUser(int userId, int roleId)
+        {
+            await _userRepository.RemoveRoleFromUser(userId, roleId);
         }
     }
 }

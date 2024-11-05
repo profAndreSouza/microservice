@@ -7,7 +7,6 @@ namespace UserAuth.API.Controllers
 {
     [ApiController]
     [Route("api/[controller]")]
-    [Authorize(Roles = "user:admin")]
     public class UserController : ControllerBase
     {
         private readonly IUserService _userService;
@@ -38,7 +37,6 @@ namespace UserAuth.API.Controllers
             await _userService.AddUser(userDTO);
 
             // Recupera o usuário criado para obter o Id
-            
             var createdUser = await _userService.GetUserByEmail(userDTO.Email);
             if (createdUser == null) return BadRequest("Erro ao criar usuário.");
 

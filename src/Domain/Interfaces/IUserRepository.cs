@@ -12,7 +12,6 @@ namespace UserAuth.Domain.Interfaces
         Task UpdateUser(User user);
         Task DeleteUser(int id);
 
-
         Task<IEnumerable<Role>> GetRolesByUserId(int userId);
         Task AddRoleToUser(int userId, Role role);
         Task RemoveRoleFromUser(int userId, int roleId);

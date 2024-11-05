@@ -7,6 +7,6 @@ namespace UserAuth.Domain.Entities
         public string Email { get; set; }
         public string Username { get; set; }
         public string Password { get; set; }
-        public List<Role> Roles { get; set; } = new List<Role>();
+        public List<UserRole> UserRoles { get; set; } = new List<UserRole>();
     }
 }
