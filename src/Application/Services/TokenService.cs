@@ -83,8 +83,8 @@ namespace UserAuth.Application.Services
                 }
                 var expirationTime = jwtToken.ValidTo;
 
-                // tolerancia de 1 minuto para renovar o token
-                if (DateTime.UtcNow > expirationTime.AddMinutes(1))
+                // tolerancia de 5 minuto para renovar o token
+                if (DateTime.UtcNow > expirationTime.AddMinutes(5))
                 {
                     return null;
                 }

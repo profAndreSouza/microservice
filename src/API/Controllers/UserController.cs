@@ -7,7 +7,6 @@ namespace UserAuth.API.Controllers
 {
     [ApiController]
     [Route("api/[controller]")]
-    [Authorize(Roles = "users:admin")]
     public class UserController : ControllerBase
     {
         private readonly IUserService _userService;
@@ -18,6 +17,7 @@ namespace UserAuth.API.Controllers
         }
 
         [HttpGet]
+        [Authorize(Roles = "users:admin")]
         public async Task<IActionResult> GetUsers()
         {
             var users = await _userService.GetAllUsers();
@@ -25,6 +25,7 @@ namespace UserAuth.API.Controllers
         }
 
         [HttpGet("{id}")]
+        [Authorize(Roles = "users:admin")]
         public async Task<IActionResult> GetUser(int id)
         {
             var user = await _userService.GetUserById(id);
@@ -45,6 +46,7 @@ namespace UserAuth.API.Controllers
         }
 
         [HttpPut("{id}")]
+        [Authorize(Roles = "users:admin")]
         public async Task<IActionResult> UpdateUser(int id, UserDTO userDTO)
         {
             var existingUser = await _userService.GetUserById(id);
@@ -55,6 +57,7 @@ namespace UserAuth.API.Controllers
         }
 
         [HttpDelete("{id}")]
+        [Authorize(Roles = "users:admin")]
         public async Task<IActionResult> DeleteUser(int id)
         {
             var existingUser = await _userService.GetUserById(id);
