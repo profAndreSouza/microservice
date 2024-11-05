@@ -3,6 +3,9 @@ using UserAuth.Application.Helpers;
 using UserAuth.Application.Interfaces;
 using UserAuth.Domain.Entities;
 using UserAuth.Domain.Interfaces;
+using System.Collections.Generic;
+using System.Linq;
+using System.Threading.Tasks;
 
 namespace UserAuth.Application.Services
 {
@@ -20,9 +23,15 @@ namespace UserAuth.Application.Services
             var users = await _userRepository.GetAllUsers();
             return users.Select(user => new UserDTO
             {
+                Id = user.Id,
                 Name = user.Name,
                 Email = user.Email,
-                Username = user.Username
+                Username = user.Username,
+                Roles = user.Roles.Select(role => new RoleDTO
+                {
+                    Id = role.Id,
+                    Name = role.Name
+                }).ToList()
             });
         }
 
@@ -33,9 +42,34 @@ namespace UserAuth.Application.Services
 
             return new UserDTO
             {
+                Id = user.Id,
                 Name = user.Name,
                 Email = user.Email,
-                Username = user.Username
+                Username = user.Username,
+                Roles = user.Roles.Select(role => new RoleDTO
+                {
+                    Id = role.Id,
+                    Name = role.Name
+                }).ToList()
+            };
+        }
+
+        public async Task<UserDTO> GetUserByEmail(string email)
+        {
+            var user = await _userRepository.GetUserByEmail(email);
+            if (user == null) return null;
+
+            return new UserDTO
+            {
+                Id = user.Id,
+                Name = user.Name,
+                Email = user.Email,
+                Username = user.Username,
+                Roles = user.Roles.Select(role => new RoleDTO
+                {
+                    Id = role.Id,
+                    Name = role.Name
+                }).ToList()
             };
         }
 
@@ -46,7 +80,12 @@ namespace UserAuth.Application.Services
                 Name = userDTO.Name,
                 Email = userDTO.Email,
                 Username = userDTO.Username,
-                Password = PasswordHelper.HashPassword(userDTO.Password)
+                Password = PasswordHelper.HashPassword(userDTO.Password),
+                Roles = userDTO.Roles.Select(roleDTO => new Role
+                {
+                    Id = roleDTO.Id,
+                    Name = roleDTO.Name
+                }).ToList()
             };
 
             await _userRepository.AddUser(user);
@@ -60,6 +99,12 @@ namespace UserAuth.Application.Services
                 user.Name = userDTO.Name;
                 user.Email = userDTO.Email;
                 user.Username = userDTO.Username;
+                
+                user.Roles = userDTO.Roles.Select(roleDTO => new Role
+                {
+                    Id = roleDTO.Id,
+                    Name = roleDTO.Name
+                }).ToList();
 
                 await _userRepository.UpdateUser(user);
             }

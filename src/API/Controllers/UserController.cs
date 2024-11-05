@@ -7,7 +7,6 @@ namespace UserAuth.API.Controllers
 {
     [ApiController]
     [Route("api/[controller]")]
-
     [Authorize(Roles = "user:admin")]
     public class UserController : ControllerBase
     {
@@ -37,12 +36,21 @@ namespace UserAuth.API.Controllers
         public async Task<IActionResult> CreateUser(UserDTO userDTO)
         {
             await _userService.AddUser(userDTO);
-            return CreatedAtAction(nameof(GetUser), new { id = userDTO.Email }, userDTO);
+
+            // Recupera o usuário criado para obter o Id
+            
+            var createdUser = await _userService.GetUserByEmail(userDTO.Email);
+            if (createdUser == null) return BadRequest("Erro ao criar usuário.");
+
+            return CreatedAtAction(nameof(GetUser), new { id = createdUser.Id }, createdUser);
         }
 
         [HttpPut("{id}")]
         public async Task<IActionResult> UpdateUser(int id, UserDTO userDTO)
         {
+            var existingUser = await _userService.GetUserById(id);
+            if (existingUser == null) return NotFound();
+
             await _userService.UpdateUser(id, userDTO);
             return NoContent();
         }
@@ -50,6 +58,9 @@ namespace UserAuth.API.Controllers
         [HttpDelete("{id}")]
         public async Task<IActionResult> DeleteUser(int id)
         {
+            var existingUser = await _userService.GetUserById(id);
+            if (existingUser == null) return NotFound();
+
             await _userService.DeleteUser(id);
             return NoContent();
         }
