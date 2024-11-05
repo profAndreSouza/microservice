@@ -22,12 +22,28 @@ namespace UserAuth.API.Controllers
         [HttpPost]
         public async Task<IActionResult> LoginUser(UserLoginDTO userLoginDTO)
         {
-            var user = await _authService.LoginUser(userLoginDTO);
-            if (user == null)
+            var userDTO = await _authService.LoginUser(userLoginDTO);
+            if (userDTO == null)
                 return Unauthorized("Invalid Credentials");
 
-            var token = _tokenService.GenerateToken(user);
+            var token = _tokenService.GenerateToken(userDTO);
             return Ok(token);
         }
+
+        [HttpPost("refresh-token")]
+        public IActionResult RefreshToken()
+        {
+            var authorizationHeader = Request.Headers["Authorization"].ToString();
+            Console.Write(authorizationHeader);
+            var newToken = _tokenService.RefreshToken(authorizationHeader);
+
+            if (newToken == null)
+            {
+                return Unauthorized("Token invalid or expired.");
+            }
+
+            return Ok(newToken);
+        }
+
     }
 }

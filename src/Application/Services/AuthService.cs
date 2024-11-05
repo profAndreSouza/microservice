@@ -16,12 +16,22 @@ namespace UserAuth.Application.Services
             _userRepository = userRepository;
         }
 
-        public async Task<User?> LoginUser(UserLoginDTO userLoginDTO)
+        public async Task<UserDTO?> LoginUser(UserLoginDTO userLoginDTO)
         {
             var user = await _userRepository.FindUserByUsername(userLoginDTO.Username);
             if (user != null)
                 if (PasswordHelper.VerifyPassword(userLoginDTO.Password, user.Password))
-                    return user;
+                    return new UserDTO {
+                        Id = user.Id,
+                        Name = user.Name,
+                        Email = user.Email,
+                        Username = user.Username,
+                        Roles = user.UserRoles.Select(ur => new RoleDTO
+                        {
+                            Id = ur.Role.Id,
+                            Name = ur.Role.Name
+                        }).ToList()
+                    };
                     
             return null;
         }

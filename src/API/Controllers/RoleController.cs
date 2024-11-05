@@ -7,7 +7,7 @@ namespace UserAuth.API.Controllers
 {
     [ApiController]
     [Route("api/[controller]")]
-    [Authorize(Roles = "user:admin")]
+    [Authorize(Roles = "users:admin")]
     public class RoleController : ControllerBase
     {
         private readonly IRoleService _roleService;

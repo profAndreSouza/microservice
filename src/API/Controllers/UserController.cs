@@ -7,6 +7,7 @@ namespace UserAuth.API.Controllers
 {
     [ApiController]
     [Route("api/[controller]")]
+    [Authorize(Roles = "users:admin")]
     public class UserController : ControllerBase
     {
         private readonly IUserService _userService;

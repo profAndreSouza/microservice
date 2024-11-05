@@ -6,6 +6,6 @@ namespace UserAuth.Application.Interfaces
 {
     public interface IAuthService
     {
-        Task<User?> LoginUser(UserLoginDTO userLoginDTO);
+        Task<UserDTO?> LoginUser(UserLoginDTO userLoginDTO);
     }
 }
