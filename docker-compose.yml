@@ -20,6 +20,15 @@ services:
     depends_on:
       - db
 
+  machineapi:
+    build:
+      context: .
+      dockerfile: ./MachineAPI/src/Infrastructure/Docker/Dockerfile
+    ports:
+      - "3001:8080"
+    depends_on:
+      - db
+
   pgadmin:
     image: dpage/pgadmin4
     environment:

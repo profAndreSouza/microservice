@@ -1,14 +1,6 @@
 using Microsoft.EntityFrameworkCore;
-using UserAuth.API.Extensions;
-using UserAuth.Application.Interfaces;
-using UserAuth.Application.Services;
-using UserAuth.Domain.Interfaces;
-using UserAuth.Infrastructure.Data;
 using Microsoft.OpenApi.Models;
-using Microsoft.AspNetCore.Authentication.JwtBearer;
-using Microsoft.IdentityModel.Tokens;
 using System.Text;
-using UserAuth.Infrastructure.Repositories;
 
 public class Startup
 {

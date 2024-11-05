@@ -4,12 +4,12 @@ EXPOSE 80
 
 FROM mcr.microsoft.com/dotnet/sdk:8.0 AS build
 WORKDIR /src
-COPY UserAPI/AuthMicroservice.csproj .
+COPY MachineAPI/MachineAPI.csproj .
 RUN dotnet restore
 COPY . .
-RUN dotnet publish -c release -o /app UserAPI/AuthMicroservice.csproj
+RUN dotnet publish -c release -o /app MachineAPI/MachineAPI.csproj
 
 FROM base AS final
 WORKDIR /app
 COPY --from=build /app .
-ENTRYPOINT ["dotnet", "AuthMicroservice.dll"]
+ENTRYPOINT ["dotnet", "MachineAPI.dll"]
