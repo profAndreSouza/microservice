@@ -1,7 +1,7 @@
 using Microsoft.EntityFrameworkCore;
-using Machine.Infrastructure.Data;
+using MachineAPI.Infrastructure.Data;
 
-namespace Machine.API.Extensions;
+namespace MachineAPI.API.Extensions;
 
 public static class MigrationExtensions
 {

@@ -2,6 +2,13 @@
 using Microsoft.EntityFrameworkCore;
 using Microsoft.OpenApi.Models;
 using System.Text;
+using MachineAPI.API.Extensions;
+using MachineAPI.Application.Interfaces;
+using MachineAPI.Application.Services;
+using MachineAPI.Domain.Interfaces;
+using MachineAPI.Infrastructure.Repositories;
+using MachineAPI.Infrastructure.Data;
+
 
 public class Startup
 {
@@ -13,9 +20,14 @@ public class Startup
     }
     public void ConfigureServices(IServiceCollection services)
     {
-        // services.AddDbContext<ApplicationDbContext>(
-        //     options =>options.UseNpgsql(_configuration.GetConnectionString("DefaultConnection"))
-        // );
+        services.AddDbContext<ApplicationDbContext>(options =>
+            options.UseNpgsql(_configuration.GetConnectionString("DefaultConnection"))
+        );
+ 
+        services.AddScoped<IMachineService, MachineService>();
+        services.AddScoped<IPlaceService, PlaceService>();
+        services.AddScoped<IMachineRepository, MachineRepository>();
+        services.AddScoped<IPlaceRepository, PlaceRepository>();
  
         // Add services to the container.
         services.AddControllers();
@@ -46,7 +58,7 @@ public class Startup
                 c.SwaggerEndpoint("/swagger/v1/swagger.json", "Machine API V1"); // Set up the Swagger UI
                 c.RoutePrefix = string.Empty; // Set Swagger UI at the app's root
             });
-            // app.ApplyMigrations();
+            app.ApplyMigrations();
         }
 
         // app.UseHttpsRedirection();
