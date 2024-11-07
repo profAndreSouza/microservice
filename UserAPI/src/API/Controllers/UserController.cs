@@ -17,7 +17,6 @@ namespace UserAuth.API.Controllers
         }
 
         [HttpGet]
-        [Authorize(Roles = "users:admin")]
         public async Task<IActionResult> GetUsers()
         {
             var users = await _userService.GetAllUsers();

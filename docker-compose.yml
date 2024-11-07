@@ -10,24 +10,8 @@ services:
       - "5432:5432"
     volumes:
       - db_data:/var/lib/postgresql/data
-
-  userapi:
-    build:
-      context: .
-      dockerfile: ./UserAPI/src/Infrastructure/Docker/Dockerfile
-    ports:
-      - "3000:8080"
-    depends_on:
-      - db
-
-  machineapi:
-    build:
-      context: .
-      dockerfile: ./MachineAPI/src/Infrastructure/Docker/Dockerfile
-    ports:
-      - "3001:8080"
-    depends_on:
-      - db
+    networks:
+      - gateway_network
 
   pgadmin:
     image: dpage/pgadmin4
@@ -38,6 +22,46 @@ services:
       - "5050:80"
     depends_on:
       - db
+    networks:
+      - gateway_network
+
+  userapi:
+    build:
+      context: .
+      dockerfile: ./UserAPI/src/Infrastructure/Docker/Dockerfile
+    ports:
+      - "3000:8080"
+    depends_on:
+      - db
+    networks:
+      - gateway_network
+
+  machineapi:
+    build:
+      context: .
+      dockerfile: ./MachineAPI/src/Infrastructure/Docker/Dockerfile
+    ports:
+      - "3001:8080"
+    depends_on:
+      - db
+    networks:
+      - gateway_network
+
+  apigateway:
+    build:
+      context: .
+      dockerfile: ./ApiGateway/Dockerfile
+    ports:
+      - "3002:8080"
+    depends_on:
+      - userapi
+      - machineapi
+    networks:
+      - gateway_network
 
 volumes:
   db_data:
+
+networks:
+  gateway_network:
+    driver: bridge

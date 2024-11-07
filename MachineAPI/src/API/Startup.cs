@@ -29,7 +29,18 @@ public class Startup
         services.AddScoped<IMachineRepository, MachineRepository>();
         services.AddScoped<IPlaceRepository, PlaceRepository>();
  
-        // Add services to the container.
+
+        services.AddCors(options =>
+        {
+            options.AddPolicy("AllowAPIGateway",
+                builder =>
+                {
+                    builder.WithOrigins("http://localhost:3002") 
+                        .AllowAnyMethod()
+                        .AllowAnyHeader();
+                });
+        });
+
         services.AddControllers();
         services.AddEndpointsApiExplorer();
         services.AddSwaggerGen(c =>
@@ -48,18 +59,17 @@ public class Startup
     public void Configure(IApplicationBuilder app, IWebHostEnvironment env)
     {
 
-        // Configure the HTTP request pipeline.
-        if (env.IsDevelopment() || env.IsProduction())
+        app.UseCors("AllowAPIGateway");
+
+        app.UseSwagger();
+        app.UseSwaggerUI(c =>
         {
-            app.UseSwagger();
-            app.UseSwaggerUI(c =>
-            {
-                
-                c.SwaggerEndpoint("/swagger/v1/swagger.json", "Machine API V1"); // Set up the Swagger UI
-                c.RoutePrefix = string.Empty; // Set Swagger UI at the app's root
-            });
-            app.ApplyMigrations();
-        }
+            
+            c.SwaggerEndpoint("/swagger/v1/swagger.json", "Machine API V1"); // Set up the Swagger UI
+            c.RoutePrefix = string.Empty; // Set Swagger UI at the app's root
+        });
+        app.ApplyMigrations();
+            
 
         // app.UseHttpsRedirection();
 
